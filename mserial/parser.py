@@ -1,4 +1,4 @@
-from data.models import AGGFrame, ACCFrame, GPSFrame
+from data.models import AGGFrame, ACCFrame, GNSSFrame
 
 def nmea_to_decimal(value: str, direction: str) -> float:
     dot = value.index(".")
@@ -9,7 +9,7 @@ def nmea_to_decimal(value: str, direction: str) -> float:
         decimal = -decimal
     return decimal
 
-def parse_line(line: str) -> AGGFrame | ACCFrame | GPSFrame | None:
+def parse_line(line: str) -> AGGFrame | ACCFrame | GNSSFrame | None:
     parts = line.strip().split(",")
 
     if len(parts)<=2:
@@ -17,12 +17,12 @@ def parse_line(line: str) -> AGGFrame | ACCFrame | GPSFrame | None:
 
     header = parts[0]
     try:
-        if header == "$AGG" and len(parts) >=4:
-            return AGGFrame(float(parts[1]),float(parts[2]),float(parts[3]))
-        if header == "$ACC" and len(parts) >=4:
-            return ACCFrame(float(parts[1]),float(parts[2]),float(parts[3]))
+        if header == "$AGG" and len(parts) >=5:
+            return AGGFrame(float(parts[1]),float(parts[2]),float(parts[3]),int(parts[4]))
+        if header == "$ACC" and len(parts) >=5:
+            return ACCFrame(float(parts[1]),float(parts[2]),float(parts[3]),int(parts[4]))
         if header == "$GNGGA" and len(parts) >= 10:
-            if parts[6] == "0" or part[2] == "":
+            if parts[6] == "0" or parts[2] == "":
                 return None
             return GNSSFrame(
             timestamp   = parts[1],

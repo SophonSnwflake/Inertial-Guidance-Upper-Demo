@@ -5,13 +5,14 @@ class AGGFrame:
     gx: float
     gy: float
     gz: float
-
+    timestamp: int
 
 @dataclass
 class ACCFrame:
     ax: float
     ay: float
     az: float
+    timestamp: int
 
 @dataclass
 class GNSSFrame:
