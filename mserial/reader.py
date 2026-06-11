@@ -39,8 +39,10 @@ class SerialReader:
 
     def open(self):
         try:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  #先配置好
-            self.sock.connect((TCP_HOST, TCP_PORT)) #再连接
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.settimeout(3.0)
+            self.sock.connect((TCP_HOST, TCP_PORT))
+            self.sock.settimeout(1.0)
             print(f"[TCP] 连接成功 {TCP_HOST} : {TCP_PORT}")
         except Exception as e:
             print(f"[TCP] 连接失败: {e}")
@@ -52,13 +54,19 @@ class SerialReader:
 
     def read_loop(self, callback):
         while True:
-            data = self.sock.recv(1024).decode("ascii", errors="ignore")
+            try:
+                data = self.sock.recv(1024).decode("ascii", errors="ignore")
+            except TimeoutError:
+                print("[TCP] 等待数据...", flush=True)
+                continue
             if not data:
+                print("[TCP] 连接已断开")
                 break
+            # print(f"[TCP] 收到 {len(data)} 字节: {repr(data[:80])}", flush=True)
             self.buffer += data
             while "\n" in self.buffer:
                 line, self.buffer = self.buffer.split("\n", 1)
                 frame = parse_line(line)
                 if frame is not None:
-                    callback(frame)        
+                    callback(frame)
 

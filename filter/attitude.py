@@ -1,5 +1,6 @@
+#卡尔曼观测器，用来输出姿态角
 import numpy as np
-from nav.quaternion import normalize, to_dcm
+from nav.quaternion import normalize, to_dcm, to_euler
 
 class AttitudeEKF:
     def __init__(self):
@@ -12,8 +13,8 @@ class AttitudeEKF:
         self.H = np.zeros((3,6)) #观测器状态转移雅可比
         self.M = np.eye(6)
         # self.M[3, 3] = 0 #量测更新不更新YAW
-        self.last_time = None
-
+        self.last_time: float | None = None
+        self.euler_onlyForObservation = np.array([0.0,0.0,0.0])
     
     def predict(self, gyro:np.ndarray, dt:float):
         #状态预测方程
@@ -41,7 +42,8 @@ class AttitudeEKF:
         stateVector_f3 = q_after[2]
         stateVector_f4 = q_after[3]
         self.stateVector =np.array([stateVector_f1,stateVector_f2,stateVector_f3,stateVector_f4,stateVector_f5,stateVector_f6])
-        
+        self.euler_onlyForObservation = to_euler(self.stateVector[0:4])
+
         #协方差预测方程
         self.F = np.array([[1,-c*real_wx,-c*real_wy,-c*real_wz,c*q1,c*q2],
                           [c*real_wx,1,c*real_wz,-c*real_wy,-c*q0,c*q3],
@@ -68,6 +70,7 @@ class AttitudeEKF:
         self.P = (np.eye(6) - self.K @ self.H) @self.P
         q = self.stateVector[0:4]
         self.stateVector[0:4] = q / np.linalg.norm(q)
+        self.euler_onlyForObservation = to_euler(self.stateVector[0:4])
 
 
 
