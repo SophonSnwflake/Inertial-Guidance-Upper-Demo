@@ -29,10 +29,8 @@ class eulerVisualizer:
         self.ax1.set_title("eulerVisualizer")
         self.ax2.set_xlabel("Time (s)")
         self.ax2.set_ylabel("Roll (deg)")
-        self.ax2.set_title("eulerVisualizer")
         self.ax3.set_xlabel("Time (s)")
         self.ax3.set_ylabel("Yaw (deg)")
-        self.ax3.set_title("eulerVisualizer")
         self.start_time = time.time()
         self.ax1.grid(True, alpha=0.1)
         self.ax2.grid(True, alpha=0.1)
@@ -55,7 +53,7 @@ class eulerVisualizer:
         return self.line1,self.line2,self.line3
     
     def show(self):
-        self.ani = animation.FuncAnimation(self.fig, self.update, interval=50, cache_frame_data=False)
+        self.ani = animation.FuncAnimation(self.fig, self.update, interval=30, cache_frame_data=False)
         plt.show()
 
 
